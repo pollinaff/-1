@@ -16,6 +16,7 @@ digit_to_word = {
     'E': 'четырнадцать',
     'F': 'пятнадцать'
 }
+str = ''
 with open('input.txt', 'r') as f:
     block = f.read()
     if not block:
@@ -26,6 +27,7 @@ with open('input.txt', 'r') as f:
             try:
                 num = int(lexeme, 16)
             except ValueError:
+                print("не является шестнадцатеричным числом")
                 continue
             if lexeme[-3]=='A':
                 str = ''
@@ -33,4 +35,6 @@ with open('input.txt', 'r') as f:
                     str += digit_to_word[digit] + ' '
                 print(lexeme + ':' + str)
                 break
+        if str == '':
+            print("не удовлетворяет условию задачи")
         block = f.read()
