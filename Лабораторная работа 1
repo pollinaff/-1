@@ -29,7 +29,7 @@ with open('input.txt', 'r') as f:
             except ValueError:
                 print("не является шестнадцатеричным числом")
                 continue
-            if lexeme[-3]=='A':
+            if (len(lexeme) > 2) and (lexeme[-3]=='A'):
                 str = ''
                 for digit in lexeme:
                     str += digit_to_word[digit] + ' '
