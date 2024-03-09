@@ -8,39 +8,36 @@
 
 import re
 
-def hex_to_words(hex_str):
-    hex_dict = {
-        '0': 'ноль', '1': 'один', '2': 'два', '3': 'три',
-        '4': 'четыре', '5': 'пять', '6': 'шесть', '7': 'семь',
-        '8': 'восемь', '9': 'девять', 'A': 'десять', 'B': 'одиннадцать',
-        'C': 'двенадцать', 'D': 'тринадцать', 'E': 'четырнадцать', 'F': 'пятнадцать'
-    }
-    return ' '.join(hex_dict[digit.upper()] for digit in hex_str if digit.upper() in hex_dict)
+def hex_to_words(hex_str): 
+    hex_dict = { 
+        '0': 'ноль', '1': 'один', '2': 'два', '3': 'три', 
+        '4': 'четыре', '5': 'пять', '6': 'шесть', '7': 'семь', 
+        '8': 'восемь', '9': 'девять', 'A': 'десять', 'B': 'одиннадцать', 
+        'C': 'двенадцать', 'D': 'тринадцать', 'E': 'четырнадцать', 'F': 'пятнадцать' 
+    } 
+    return ' '.join(hex_dict.get(digit.upper(), '') for digit in hex_str)
 
-def is_valid_hex(hex_str):
-    if len(hex_str) < 3 or hex_str[-3].upper() != 'A':
-        return False
-    return all(hex_str[i].upper() >= hex_str[i + 1].upper() for i in range(len(hex_str) - 1))
+def find_max_hex_in_file(file_path): 
+    max_hex = None
+    pattern = re.compile(r'\b(?:0x)?([0-9A-Fa-f]*A[0-9A-Fa-f]{2})\b')
+    
+    try: 
+        with open(file_path, 'r') as file: 
+            content = file.read() 
+            matches = pattern.findall(content)
+            valid_hex_numbers = filter(lambda x: all(x[i].upper() >= x[i+1].upper() for i in range(len(x)-1)), matches)
+            max_hex = max(valid_hex_numbers, key=lambda x: int(x, 16), default=None)
+    except FileNotFoundError: 
+        print("Файл не найден.") 
+        return
+    
+    return max_hex.upper() if max_hex else max_hex
 
-def find_max_hex_in_file(file_path):
-    max_hex = '0'
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read()
-            words = re.findall(r'\b0x\w+\b|\b\w*[Aa]\w*\b', content)
-            for word in words:
-                hex_number = word[2:] if word.startswith('0x') else word
-                if is_valid_hex(hex_number) and int(hex_number, 16) > int(max_hex, 16):
-                    max_hex = hex_number
-    except FileNotFoundError:
-        print("Файл не найден.")
-        return None
-    return max_hex
+file_path = 'inputghp.txt' 
+max_hex = find_max_hex_in_file(file_path) 
 
-file_path = 'inputghp.txt'
-max_hex = find_max_hex_in_file(file_path)
-if max_hex and max_hex != '0':
-    print(f"Максимальное шестнадцатеричное число: {max_hex}")
-    print(f"Прописью: {hex_to_words(max_hex)}")
-else:
+if max_hex: 
+    print(f"Максимальное шестнадцатеричное число: {max_hex}") 
+    print(f"Прописью: {hex_to_words(max_hex)}") 
+else: 
     print("Подходящих шестнадцатеричных чисел в файле нет.")
