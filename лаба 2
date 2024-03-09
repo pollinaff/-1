@@ -19,14 +19,14 @@ def hex_to_words(hex_str):
 
 def find_max_hex_in_file(file_path): 
     max_hex = None
-    pattern = re.compile(r'\b(?:0x)?([0-9A-Fa-f]*A[0-9A-Fa-f]{2})\b')
+    
+    pattern = re.compile(r'\b(?:0x)?([FEDCBA9876543210]*A[FEDCBA9876543210]{2})\b', re.IGNORECASE)
     
     try: 
         with open(file_path, 'r') as file: 
             content = file.read() 
             matches = pattern.findall(content)
-            valid_hex_numbers = filter(lambda x: all(x[i].upper() >= x[i+1].upper() for i in range(len(x)-1)), matches)
-            max_hex = max(valid_hex_numbers, key=lambda x: int(x, 16), default=None)
+            max_hex = max(matches, key=lambda x: int(x, 16), default=None)
     except FileNotFoundError: 
         print("Файл не найден.") 
         return
