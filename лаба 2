@@ -6,65 +6,38 @@
 # Шеснадцатиричные числа, у которых 3 справа цифры равна А16 расположенные в порядке убывания.
 # Для каждой такой последовательности максимальное число вывести прописью.
 
-import re
+import re  # Импорт модуля регулярных выражений
 
-
-def hex_to_words(hex_str):
-    hex_dict = {
-        '0': 'ноль', '1': 'один', '2': 'два', '3': 'три',
-        '4': 'четыре', '5': 'пять', '6': 'шесть', '7': 'семь',
-        '8': 'восемь', '9': 'девять', 'A': 'десять', 'B': 'одиннадцать',
-        'C': 'двенадцать', 'D': 'тринадцать', 'E': 'четырнадцать', 'F': 'пятнадцать'
+# Функция для преобразования числа в строку прописью на русском языке
+def number_to_words(number):
+    words = {
+        '0': 'ноль',
+        '1': 'один',
+        '2': 'два',
+        '3': 'три',
+        '4': 'четыре',
+        '5': 'пять',
+        '6': 'шесть',
+        '7': 'семь',
+        '8': 'восемь',
+        '9': 'девять',
+        'A': 'десять',
+        'B': 'одиннадцать',
+        'C': 'двенадцать',
+        'D': 'тринадцать',
+        'E': 'четырнадцать',
+        'F': 'пятнадцать'
     }
-    return ' '.join(hex_dict[digit] for digit in hex_str)
+    return ' '.join(words[digit] for digit in str(number))
 
-
-def split_sequence_by_order(sequence):
-    if not sequence:
-        return []
-
-    result = []
-    current_sequence = [sequence[0]]
-
-    for i in range(1, len(sequence)):
-        if int(sequence[i], 16) < int(sequence[i - 1], 16):
-            current_sequence.append(sequence[i])
-        else:
-            if len(current_sequence) > 1:
-                result.append(current_sequence)
-            current_sequence = [sequence[i]]
-
-    if len(current_sequence) > 1:
-        result.append(current_sequence)
-    return result
-
-
-def find_max_hex_in_file(file_path):
-    with open(file_path, 'r') as file:
-        text = file.read()
-        hex_nums = re.findall(r'\b(?:0x)?([0-9A-Fa-f]*A[0-9A-Fa-f]{2})\b', text)
-
-        if len(hex_nums) == 0:
-            print("Подходящих шестнадцатеричных чисел в файле нет.")
-            return
-
-        # Разделение чисел на последовательности в порядке убывания
-        sequences = split_sequence_by_order(hex_nums)
-
-        # Вывод максимального числа из каждой последовательности
-        for index, sequence in enumerate(sequences):
-            # Максимальное значение будет первым элементом последовательности, т.к она упорядочена по убыванию
-            max_hex = sequence[0]
-            print(index + 1, "последовательность:", *sequence)
-            print(f"Максимальное шестнадцатеричное число: {max_hex}")
-            print(f"Прописью: {hex_to_words(max_hex)}")
-            print()
-
-
-def run():
-    file_path = 'input.txt'
-    find_max_hex_in_file(file_path)
-
-
-run()
-
+with open("input.txt", "r") as file:
+    for line in file:
+        numbers = re.findall(r'\b(?:0x)?([0-9A-Fa-f]*A[0-9A-Fa-f]{2})\b', line)
+        sequence = []
+        for number in map(str, numbers):
+            sequence.append(number)
+        if len(sequence) > 1 and sequence == sorted(sequence, reverse = True):
+            max_number = sequence[0]
+            max_number_words = number_to_words(max_number)
+            #print(' '.join(map(str, sequence)) + f': {max_number_words} - максимальное число') #вывод последовательности и максимального числа буквами
+            print(max_number + ': ' + max_number_words) 
