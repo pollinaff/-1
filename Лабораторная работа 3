@@ -1,60 +1,94 @@
+'''
+С клавиатуры вводится два числа K и N. Квадратная матрица А(N,N), состоящая из 4-х равных по размерам подматриц,
+B,C,D,E заполняется случайным образом целыми числами в интервале [-10,10]. Для тестирования использовать не случайное заполнение,
+а целенаправленное.
+
+Вид матрицы А
+B	C
+D	E
+
+Области
+    2
+  1   3
+    4
+Вариант 28
+Формируется матрица F следующим образом: если в С количество нулей по периметру области 2 больше, 
+чем произведение чисел по периметру области 4, то поменять в Е симметрично области 1 и 4 местами, 
+иначе С и В поменять местами несимметрично. При этом матрица А не меняется.
+После чего вычисляется выражение: ((К*A T)*(F+А)-K* F T . Выводятся по мере формирования А, F и все матричные операции последовательно.
+'''
 import random
 
-# ввод K и N
-K = int(input('Введите число K: '))
-N = int(input('Введите число N: '))
+# Ввод K и N с клавиатуры
+K = int(input("Введите K: "))
+N = int(input("Введите N: "))
 
-# генерация матриц B, C, D, E
-B = [[2, 2], [1, 3]]
-C = [[0, 0], [0, 0]]
-D = [[4, 4], [1, 3]]
-E = [[random.randint(-10, 10) for _ in range(N // 2)] for _ in range(N // 2)]
-
-# формирование матрицы А
-A = [[0 for _ in range(N)] for _ in range(N)]
-for i in range(N // 2):
-    for j in range(N // 2):
-        A[i][j] = B[i][j]
-        A[i][j + N // 2] = C[i][j]
-        A[i + N // 2][j] = D[i][j]
-        A[i + N // 2][j + N // 2] = E[i][j]
-print('Матрица А:')
+# Создание матрицы A и заполнение ее случайными числами в интервале [-10, 10]
+A = [[random.randint(-10, 10) for _ in range(N)] for _ in range(N)]
+print("Матрица A:")
 for row in A:
     print(row)
 
-# формирование матрицы F
-count_zeros = 0
-for i in range(N // 2):
-    for j in range(N // 2):
-        if i == 0 or i == N // 2 - 1 or j == 0 or j == N // 2 - 1:
-            if C[i][j] == 0:
-                count_zeros += 1
-perimeter_4 = B[0][0] * B[0][1] * B[1][0] * B[1][1]
-if count_zeros > perimeter_4:
-    for i in range(N // 2):
-        for j in range(N // 4):
-            E[i][j], E[i][N // 2 - j - 1] = E[i][N // 2 - j - 1], E[i][j]
-else:
-    B, C = C, B
-print('Матрица F:')
-for row in B + C + D + E:
+# Разбиение матрицы A на 4 равные подматрицы B, C, D, E
+m = N // 2
+B = [row[:m] for row in A[:m]]
+C = [row[m:] for row in A[:m]]
+D = [row[:m] for row in A[m:]]
+E = [row[m:] for row in A[m:]]
+print("Матрица B:")
+for row in B:
+    print(row)
+print("Матрица C:")
+for row in C:
+    print(row)
+print("Матрица D:")
+for row in D:
+    print(row)
+print("Матрица E:")
+for row in E:
     print(row)
 
-# вычисление выражения ((K*A^T)*(F+A)-K*F^T)
+# Формирование матрицы F
+zeros_in_C = sum([row.count(0) for row in C])
+perimeter_of_2 = 2 * (m + 2)
+perimeter_of_4 = 2 * (m - 2) + 2 * (m - 4)
+if zeros_in_C > perimeter_of_4:
+    for i in range(m):
+        for j in range(m):
+            E[i][j], E[i][N-j-1] = E[i][N-j-1], E[i][j]
+    print("Матрица F (области 1 и 4 поменялись местами):")
+else:
+    B, C = C, B
+    print("Матрица F (C и B поменялись местами):")
+F = []
+for i in range(N):
+    if i < m:
+        F.append(B[i] + C[i])
+    else:
+        F.append(D[i-m] + E[i-m])
+print(F)
+
+# Вычисление выражения ((К*A T)*(F+А)-K* F T
 KAAT = [[0 for _ in range(N)] for _ in range(N)]
 for i in range(N):
     for j in range(N):
         for k in range(N):
             KAAT[i][j] += K * A[j][k] * A[i][k]
-KFT = [[0 for _ in range(N)] for _ in range(N)]
+
+F_plus_A = []
 for i in range(N):
-    for j in range(N):
-        KFT[i][j] = K * F[j][i]
+    F_plus_A.append([F[i][j] + A[i][j] for j in range(N)])
+
+FT = []
+for i in range(N):
+    FT.append([F[j][i] for j in range(N)])
+
 result = [[0 for _ in range(N)] for _ in range(N)]
 for i in range(N):
     for j in range(N):
         for k in range(N):
-            result[i][j] += KAAT[i][k] * (A[k][j] + F[k][j]) - KFT[i][j]
-print('Результат:')
+            result[i][j] += KAAT[i][k] * F_plus_A[k][j] - K * FT[i][j]
+
+print("Результат:")
 for row in result:
     print(row)
