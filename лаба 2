@@ -39,5 +39,8 @@ with open("input.txt", "r") as file:
         if len(sequence) > 1 and sequence == sorted(sequence, reverse = True):
             max_number = sequence[0]
             max_number_words = number_to_words(max_number)
-            #print(' '.join(map(str, sequence)) + f': {max_number_words} - максимальное число') #вывод последовательности и максимального числа буквами
-            print(max_number + ': ' + max_number_words) 
+            print(' '.join(map(str, sequence)) + f': {max_number_words} - максимальное число') #вывод последовательности и максимального числа буквами
+            print(max_number + ': ' + max_number_words) #вывод только максимального числа и его же буквами
+        else:
+            print('последовательность не подходит')
+            
