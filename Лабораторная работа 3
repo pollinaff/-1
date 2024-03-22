@@ -15,7 +15,7 @@ D	E
 Формируется матрица F следующим образом: если в С количество нулей по периметру области 2 больше, 
 чем произведение чисел по периметру области 4, то поменять в Е симметрично области 1 и 4 местами, 
 иначе С и В поменять местами несимметрично. При этом матрица А не меняется.
-После чего вычисляется выражение: ((К*A T)*(F+А)-K* F T . Выводятся по мере формирования А, F и все матричные операции последовательно.
+После чего вычисляется выражение: ((К*A**T)*(F+А)-K* F**T . Выводятся по мере формирования А, F и все матричные операции последовательно.
 '''
 import random
 
@@ -50,9 +50,30 @@ for row in E:
 
 # Формирование матрицы F
 zeros_in_C = sum([row.count(0) for row in C])
-perimeter_of_2 = 2 * (m + 2)
-perimeter_of_4 = 2 * (m - 2) + 2 * (m - 4)
-if zeros_in_C > perimeter_of_4:
+
+countE1 = 0
+for i in range(0, len(C)):
+    if i <= len(C) // 2 + 1:
+        for j in range(0, i + 1):
+            if C[j][i] > 0:
+                countE1 += 1
+    else:
+        for j in range(0, len(B) - i):
+            if C[j][i] > 0:
+                countE1 += 1
+print("Количество чисел больших нуля в области 2:", countE1)
+
+countE4 = 1
+for i in range(1, len(C)):
+    if i < len(C) // 2 + 1:
+        for j in range(0, i + 1):
+            countE4 *= C[i][j]
+    else:
+        for j in range(0, len(C) - i):
+            countE4 *= C[i][j]
+print("Произведение чисел в области 4: ", countE4)
+
+if zeros_in_C > countE4:
     for i in range(m):
         for j in range(m):
             E[i][j], E[i][N-j-1] = E[i][N-j-1], E[i][j]
@@ -68,7 +89,7 @@ for i in range(N):
         F.append(D[i-m] + E[i-m])
 print(F)
 
-# Вычисление выражения ((К*A T)*(F+А)-K* F T
+# Вычисление выражения ((К*A**T)*(F+А)-K* F**T
 KAAT = [[0 for _ in range(N)] for _ in range(N)]
 for i in range(N):
     for j in range(N):
