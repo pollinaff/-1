@@ -74,7 +74,7 @@ def f_iter(n) -> Union[float, int]:
     
     
     for i in range(2, n + 1):
-        lst.insert((-1) ** i * (lst[i-1] - lst[i - 2] / fact_iter(3 * i)))
+        lst.append((-1) ** i * (lst[i-1] - lst[i - 2] / fact_iter(3 * i)))
 
     return lst[-1]
 
