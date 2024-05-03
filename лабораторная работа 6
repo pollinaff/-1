@@ -1,0 +1,69 @@
+'''
+Написать программу в соответствии со своим вариантом задания. Написать 2 варианта формирования (алгоритмический и с помощью функций Питона), сравнив по времени их выполнение.
+Вариант 28. Фирма занимается сборкой компьютеров. В компьютере компоненты N типов. 
+На складе находятся компоненты разных компаний. Количество компаний К1, К2, … КN. Сформировать все возможные варианты комплектации компьютеров.
+(Усложнение: если N кратно 3, то берем только четные в списке магазины.)
+'''
+
+import time
+from itertools import combinations_with_replacement
+N = int(input("Количество типов компонентов: "))
+shops = list(range(1, N+1))
+
+# функция для формирования комплектов из магазинов 
+def comb_shops(iterable, r):
+    pool = tuple(iterable)
+    n = len(pool)
+    if not n and r:
+        return
+    indices = [0] * r
+    yield tuple(pool[i] for i in indices)
+    while True:
+        for i in reversed(range(r)):
+            if indices[i] != n - 1:
+                break
+        else:
+            return
+        indices[i:] = [indices[i] + 1] * (r - i)
+        yield tuple(pool[i] for i in indices)
+
+# алгоритмический подход
+start_time = time.time()
+spisk = list(comb_shops(shops, N))
+end_time = time.time()
+print("Время выполнения алгоритмического подхода:", end_time - start_time)
+
+# с помощью функций
+shops = list(range(1, N+1))
+start_time = time.time()
+complectacii = list(combinations_with_replacement(shops, N))
+end_time = time.time()
+print("Время выполнения функционального подхода:", end_time - start_time)
+
+
+# 2 часть
+# алгоритмический подход с усложнением
+start_time = time.time()
+if N%3 == 0:
+    shops = list(range(2, N+1, 2))
+spisk = list(comb_shops(shops, N))
+end_time = time.time()
+print("Время выполнения алгоритмического подхода с усложнением:", end_time - start_time)
+
+# с помощью функций с усложнением
+def sozspisk(q):
+    l = []
+    if q % 3 == 0:
+        for i in range(2, q+1, 2):
+            l.append(i)
+    else:
+        for i in range(q):
+            l.append(i)
+    return l
+
+shops = sozspisk(N)
+start_time = time.time()
+complectacii = list(combinations_with_replacement(shops, N))
+end_time = time.time()
+
+print("Время выполнения функционального подхода с усложнением:", end_time - start_time)
