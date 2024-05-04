@@ -6,11 +6,13 @@
 '''
 
 import time
-from itertools import combinations_with_replacement
-N = int(input("Количество типов компонентов: "))
-shops = list(range(1, N+1))
+import random
+from itertools import combinations_with_replacement, product
 
-# функция для формирования комплектов из магазинов 
+N = int(input("Количество типов компонентов: "))
+max_cost = int(input("Введите максимальную стоимость комплекта: "))
+
+# Функция для формирования комплектов из магазинов
 def comb_shops(iterable, r):
     pool = tuple(iterable)
     n = len(pool)
@@ -27,43 +29,38 @@ def comb_shops(iterable, r):
         indices[i:] = [indices[i] + 1] * (r - i)
         yield tuple(pool[i] for i in indices)
 
-# алгоритмический подход
+# Генерация цен для каждого типа компонента в каждом магазине
+prices = [[random.randint(100, 500) for _ in range(N)] for _ in range(N)]
+
+# Функция для расчета стоимости комплекта
+def calculate_cost(combination, prices):
+    return sum(prices[i][component - 1] for i, component in enumerate(combination))
+
+# Фильтрация комплектов по общей стоимости
+def filter_by_max_cost(combinations, prices, max_cost):
+    return [combo for combo in combinations if calculate_cost(combo, prices) <= max_cost]
+
+# Алгоритмический подход с усложнением и фильтрацией
 start_time = time.time()
+shops = list(range(2, N+1, 2)) if N % 3 == 0 else list(range(N))
 spisk = list(comb_shops(shops, N))
+filtered_spisk = filter_by_max_cost(spisk, prices, max_cost)
 end_time = time.time()
-print("Время выполнения алгоритмического подхода:", end_time - start_time)
+print("Алгоритмический подход с усложнением и фильтрацией:", end_time - start_time)
 
-# с помощью функций
-shops = list(range(1, N+1))
+# Функциональный подход с усложнением и фильтрацией
 start_time = time.time()
+shops = list(range(1, N + 1))
 complectacii = list(combinations_with_replacement(shops, N))
-end_time = time.time()
-print("Время выполнения функционального подхода:", end_time - start_time)
-
-
-# 2 часть
-# алгоритмический подход с усложнением
-start_time = time.time()
-if N%3 == 0:
-    shops = list(range(2, N+1, 2))
-spisk = list(comb_shops(shops, N))
-end_time = time.time()
-print("Время выполнения алгоритмического подхода с усложнением:", end_time - start_time)
-
-# с помощью функций с усложнением
-def sozspisk(q):
-    l = []
-    if q % 3 == 0:
-        for i in range(2, q+1, 2):
-            l.append(i)
-    else:
-        for i in range(q):
-            l.append(i)
-    return l
-
-shops = sozspisk(N)
-start_time = time.time()
-complectacii = list(combinations_with_replacement(shops, N))
+filtered_complectacii = filter_by_max_cost(complectacii, prices, max_cost)
 end_time = time.time()
 
-print("Время выполнения функционального подхода с усложнением:", end_time - start_time)
+print("Отфильтрованные комплектации для алгоритмического подхода с максимальной стоимостью", max_cost)
+for combo in filtered_spisk:
+    print(combo, "Стоимость:", calculate_cost(combo, prices))
+
+# Вывод отфильтрованных комплектаций для функционального подхода
+print("\nОтфильтрованные комплектации для функционального подхода с максимальной стоимостью", max_cost)
+for combo in filtered_complectacii:
+    print(combo, "Стоимость:", calculate_cost(combo, prices))
+
