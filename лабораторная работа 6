@@ -41,7 +41,7 @@ def filter_by_max_cost(combinations, prices, max_cost):
 
 # Алгоритмический подход с усложнением и фильтрацией
 start_time = time.time()
-shops = list(range(2, N+1, 2)) if N % 3 == 0 else list(range(N))
+shops = list(range(1, N+1))
 spisk = list(comb_shops(shops, N))
 filtered_spisk = filter_by_max_cost(spisk, prices, max_cost)
 end_time = time.time()
@@ -53,14 +53,19 @@ shops = list(range(1, N + 1))
 complectacii = list(combinations_with_replacement(shops, N))
 filtered_complectacii = filter_by_max_cost(complectacii, prices, max_cost)
 end_time = time.time()
-print("Функциональный подход с усложнением и фильтрацией:", end_time - start_time)
 
-print("Отфильтрованные комплектации для алгоритмического подхода с максимальной стоимостью", max_cost)
-for combo in filtered_spisk:
-    print(combo, "Стоимость:", calculate_cost(combo, prices))
+print("Отфильтрованные комплектации для алгоритмического подхода с максимальной стоимостью", max_cost, ":")
+if len(filtered_spisk) != 0:
+    for combo in filtered_spisk:
+        print(combo, "Стоимость:", calculate_cost(combo, prices))
+else:
+    print("Нет компонентов с такой ценой")
 
 # Вывод отфильтрованных комплектаций для функционального подхода
-print("\nОтфильтрованные комплектации для функционального подхода с максимальной стоимостью", max_cost)
-for combo in filtered_complectacii:
-    print(combo, "Стоимость:", calculate_cost(combo, prices))
+print("\nОтфильтрованные комплектации для функционального подхода с максимальной стоимостью", max_cost, ":")
+if len(filtered_complectacii) != 0:
+    for combo in filtered_complectacii:
+        print(combo, "Стоимость:", calculate_cost(combo, prices))
+else:
+    print("Нет компонентов с такой ценой")
 
