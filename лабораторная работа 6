@@ -53,6 +53,7 @@ shops = list(range(1, N + 1))
 complectacii = list(combinations_with_replacement(shops, N))
 filtered_complectacii = filter_by_max_cost(complectacii, prices, max_cost)
 end_time = time.time()
+print("Функциональный подход с усложнением и фильтрацией:", end_time - start_time)
 
 print("Отфильтрованные комплектации для алгоритмического подхода с максимальной стоимостью", max_cost, ":")
 if len(filtered_spisk) != 0:
