@@ -1,0 +1,127 @@
+'''
+Написать программу в соответствии со своим вариантом задания. Написать 2 варианта формирования (алгоритмический и с помощью функций Питона), сравнив по времени их выполнение.
+Вариант 28. Фирма занимается сборкой компьютеров. В компьютере компоненты N типов. 
+На складе находятся компоненты разных компаний. Количество компаний К1, К2, … КN. Сформировать все возможные варианты комплектации компьютеров.
+'''
+
+import tkinter as tk
+from tkinter import *
+from tkinter import ttk
+import time
+import random
+from itertools import combinations_with_replacement, product
+
+# Функция для формирования комплектов из магазинов
+def comb_shops(iterable, r):
+    pool = tuple(iterable)
+    n = len(pool)
+    if not n and r:
+        return
+    indices = [0] * r
+    yield tuple(pool[i] for i in indices)
+    while True:
+        for i in reversed(range(r)):
+            if indices[i] != n - 1:
+                break
+        else:
+            return
+        indices[i:] = [indices[i] + 1] * (r - i)
+        yield tuple(pool[i] for i in indices)
+
+# Функция для расчета стоимости комплекта
+def calculate_cost(combination, prices):
+    return sum(prices[i][component - 1] for i, component in enumerate(combination))
+
+# Фильтрация комплектов по общей стоимости
+def filter_by_max_cost(combinations, prices, max_cost):
+    return [combo for combo in combinations if calculate_cost(combo, prices) <= max_cost]
+
+# Алгоритмический подход с усложнением и фильтрацией
+def algoritm():
+
+    N = int(entry_N.get())
+    max_cost = int(entry_cost.get())
+    prices = [[random.randint(100, 500) for _ in range(N)] for _ in range(N)]
+    
+    start_time = time.time()
+    shops = list(range(1, N+1))
+    spisk = list(comb_shops(shops, N))
+    filtered_spisk = filter_by_max_cost(spisk, prices, max_cost)
+    end_time = time.time()
+    Alg_time = end_time - start_time
+    
+    output_text.delete('1.0', tk.END)  # Очистить текстовое поле перед выводом
+    output_text.insert(tk.END, f"Отфильтрованные комплектации для алгоритмического \nподхода с максимальной стоимостью", max_cost, ":")
+    if len(filtered_spisk) != 0:
+        for combo in filtered_spisk:
+            output_text.insert(tk.END, f"\n{combo} Стоимость: {calculate_cost(combo, prices)}")
+    else:
+        output_text.insert(tk.END, f"Нет компонентов с такой ценой")
+    output_text.insert(tk.END, f"\nВремя усложненного подхода с помощью алгоритма: \n{abs(Alg_time)}")
+
+# Функциональный подход с усложнением и фильтрацией
+def with_function():
+    
+    N = int(entry_N.get())
+    max_cost = int(entry_cost.get())
+    prices = [[random.randint(100, 500) for _ in range(N)] for _ in range(N)]
+    
+    start_time = time.time()
+    shops = list(range(1, N + 1))
+    complectacii = list(combinations_with_replacement(shops, N))
+    filtered_complectacii = filter_by_max_cost(complectacii, prices, max_cost)
+    end_time = time.time()
+    Funktime = end_time - start_time
+    
+    output_text.delete('1.0', tk.END)  # Очистить текстовое поле перед выводом
+    output_text.insert(tk.END, f"Отфильтрованные комплектации для функционального \nподхода с максимальной стоимостью", max_cost, ":")
+
+    if len(filtered_complectacii) != 0:
+        for combo in filtered_complectacii:
+            output_text.insert(tk.END, f"\n{combo}, Стоимость:, {calculate_cost(combo, prices)}")
+    else:
+       output_text.insert(tk.END, f"Нет компонентов с такой ценой")
+    output_text.insert(tk.END, f"\nВремя усложненного подхода с помощью функции: \n{abs(Funktime)}")
+
+
+#фун-я для запуска
+def run():
+    approach = approach_var.get()
+    if approach == 'algoritm':
+        return algoritm()
+    elif approach == 'with_function':
+        return with_function()
+
+#создание окна
+root = tk.Tk()
+root.title("Сборка компонентов компьютера")
+root.geometry("420x300+400+200")
+# неизменяемый размер окна
+root.resizable(False, False)
+# количество
+tk.Label(root, text="Введите колличество типов компонентов:").grid(row=0, column=0)
+entry_N = tk.Entry(root)
+entry_N.grid(row=0, column=1)
+#цена
+tk.Label(root, text="Введите максимальную стоимость комплекта:").grid(row=2, column=0)
+entry_cost = tk.Entry(root)
+entry_cost.grid(row=2, column=1)
+
+
+# выбор подхода(алгоритмический\функциональный)
+approach_var = tk.StringVar(value='algorithmic')
+tk.Radiobutton(root, text="Алгоритмический", variable=approach_var, value='algoritm').grid(row=4, column=0)
+tk.Radiobutton(root, text="Функциональный", variable=approach_var, value='with_function').grid(row=4, column=1)
+
+# запуск
+run_button = tk.Button(root, text="Запустить алгоритм", command=run)
+run_button.grid(row=5, column=0, columnspan=2)
+
+# вывод
+output_text = tk.Text(root, height=8, width=50)
+scroll = ttk.Scrollbar(root, orient="vertical", command= output_text.yview)
+output_text.configure(yscrollcommand=scroll.set)
+output_text.grid(row=6, column=0, columnspan=2)
+scroll.grid(column = 2, row = 6, sticky= NS)
+
+root.mainloop()
