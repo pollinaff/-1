@@ -2,86 +2,115 @@
 Требуется написать игру Крестики-Нолики с использованием граафической библиотекки tkinter.
 """
 
-from tkinter import *
-import random, time
+import tkinter as tk
+from tkinter import messagebox
 
+class TicTacToe:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Крестики-нолики")
+        self.board = [' ' for _ in range(9)]
+        self.current_player = "X"
+        self.mode = "PvP"  # PvP - Player vs Player, PvC - Player vs Computer
 
-"""
-Функция проверяет выигрышную комбинацию, используется для определения победы игрока
-"""
-def win(n):
-    global game
-    if (game[0] == n and game[1] == n and game[2] == n) or (game[3] == n and game[4] == n and game[5] == n) or (game[6] == n and game[7] == n and game[8] == n) or \
-       (game[0] == n and game[3] == n and game[6] == n) or (game[1] == n and game[4] == n and game[7] == n) or (game[2] == n and game[5] == n and game[8] == n) or \
-       (game[0] == n and game[4] == n and game[8] == n) or (game[2] == n and game[4] == n and game[6] == n):
-        return True
+        self.create_widgets()
 
-"""
-Основная функция, которая обрабатывает нажатие кнопки игроком
-"""
-def push(b):
-    global game
-    global game_left
-    global turn
-    game[b] = 'X'
-    buttons[b].config(text='X', state='disabled', bg='white')
-    game_left.remove(b)
-    if b == 4 and turn ==0:
-        t = random.choice(game_left)
-    elif b != 4 and turn == 0:
-        t = 4
-    if turn > 0:
-            t = 8 - b
-    if t not in game_left:
-        try:
-            t = random.choice(game_left)
-        except IndexError:
-            label['text'] = 'Игра окончена!'
-            stop_game()
-    game[t] = '0'
-    time.sleep(0.5)
-    buttons[t].config(text='0', state='disabled', bg='white')
-    if win('X'):
-        label['text'] = 'Вы победили!'
-        stop_game()
-    elif win('0'):
-        label['text'] = 'Вы проиграли!'
-        stop_game()
-    else:
-        if (len(game_left) > 1):
-            game_left.remove(t)
+    def create_widgets(self):
+        self.buttons = []
+        for i in range(9):
+            button = tk.Button(self.root, text=' ', font=('normal', 40), width=5, height=2,
+                               command=lambda i=i: self.on_button_click(i))
+            button.grid(row=i//3, column=i%3)
+            self.buttons.append(button)
+
+        self.reset_button = tk.Button(self.root, text="Сброс", command=self.reset_game)
+        self.reset_button.grid(row=3, column=0, columnspan=3, sticky="nsew")
+
+        self.mode_button = tk.Button(self.root, text="Выбрать режим", command=self.toggle_mode)
+        self.mode_button.grid(row=4, column=0, columnspan=3, sticky="nsew")
+
+    def on_button_click(self, index):
+        if self.board[index] == ' ':
+            self.board[index] = self.current_player
+            self.buttons[index].config(text=self.current_player)
+            if self.check_winner(self.current_player):
+                messagebox.showinfo("Игра окончена", f"Игрок {self.current_player} выиграл!")
+                self.reset_game()
+            elif ' ' not in self.board:
+                messagebox.showinfo("Игра окончена", "Ничья!")
+                self.reset_game()
+            else:
+                self.current_player = "O" if self.current_player == "X" else "X"
+                if self.mode == "PvC" and self.current_player == "O":
+                    self.computer_move()
+
+    def computer_move(self):
+        best_score = float('-inf')
+        best_move = None
+        for i in range(9):
+            if self.board[i] == ' ':
+                self.board[i] = 'O'
+                score = self.minimax(self.board, 0, False)
+                self.board[i] = ' '
+                if score > best_score:
+                    best_score = score
+                    best_move = i
+        self.on_button_click(best_move)
+
+    def minimax(self, board, depth, is_maximizing):
+        if self.check_winner('O'):
+            return 1
+        elif self.check_winner('X'):
+            return -1
+        elif ' ' not in board:
+            return 0
+
+        if is_maximizing:
+            best_score = float('-inf')
+            for i in range(9):
+                if board[i] == ' ':
+                    board[i] = 'O'
+                    score = self.minimax(board, depth + 1, False)
+                    board[i] = ' '
+                    best_score = max(score, best_score)
+            return best_score
         else:
-            label['text'] = 'Игра окончена!'
-            stop_game()
-        turn += 1
+            best_score = float('inf')
+            for i in range(9):
+                if board[i] == ' ':
+                    board[i] = 'X'
+                    score = self.minimax(board, depth + 1, True)
+                    board[i] = ' '
+                    best_score = min(score, best_score)
+            return best_score
 
-"""
-Функция останавливает игру, изменяет цвета кнопок и делает их неактивными
-"""
-def stop_game():
-    global game_left
-    for item in game_left:
-        buttons[item].config(bg='white', state='disabled')
+    def check_winner(self, player):
+        winning_combinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # горизонтальные линии
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # вертикальные линии
+            [0, 4, 8], [2, 4, 6]              # диагональные линии
+        ]
+        for combo in winning_combinations:
+            if all(self.board[i] == player for i in combo):
+                return True
+        return False
 
-        
-game = [None] * 9
-game_left = list(range(9))
-turn = 0
+    def reset_game(self):
+        self.board = [' ' for _ in range(9)]
+        self.current_player = "X"
+        for button in self.buttons:
+            button.config(text=' ')
 
-"""
-Создание игрового поля
-"""
-root = Tk()
-label = Label(width=20,text='Игра крестики-нолики', font=('Arial', 20, 'bold'))
+    def toggle_mode(self):
+        if self.mode == "PvP":
+            self.mode = "PvC"
+            self.mode_button.config(text="Режим: игра против компьютера")
+        else:
+            self.mode = "PvP"
+            self.mode_button.config(text="Режим: игра против пользователя")
+        self.reset_game()
 
-buttons = [Button(width=5, height=2, font=('Arial', 28, 'bold'),bg='pink', command=lambda x=i: push(x)) for i in range(9)]
-
-label.grid(row=0, column=0, columnspan=3)
-row = 1
-col = 0
-for i in range(9):
-    buttons[i].grid(row=row, column=col)
-    col += 1
-    if col == 3:
-        row +=1
-        col = 0
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = TicTacToe(root)
+    root.mainloop()
