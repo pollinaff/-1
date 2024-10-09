@@ -1,0 +1,42 @@
+import tkinter as tk
+from threading import Timer
+
+# Функции для управления светофором
+def switch_to_yellow():
+    canvas.itemconfig(red_light, fill="grey")
+    canvas.itemconfig(yellow_light, fill="yellow")
+    timer = Timer(10, switch_to_green)
+    timer.start()
+
+def switch_to_green():
+    canvas.itemconfig(yellow_light, fill="grey")
+    canvas.itemconfig(green_light, fill="green")
+    timer = Timer(30, switch_to_red)
+    timer.start()
+
+def switch_to_red():
+    canvas.itemconfig(green_light, fill="grey")
+    canvas.itemconfig(red_light, fill="red")
+
+def start_traffic_light():
+    switch_to_yellow()
+
+# Создание основного окна
+root = tk.Tk()
+root.title("Светофор")
+
+# Создание холста для отрисовки светофора
+canvas = tk.Canvas(root, height=300, width=100, bg="white")
+canvas.pack()
+
+# Создание кругов для светофора
+red_light = canvas.create_oval(30, 20, 70, 60, fill="red")
+yellow_light = canvas.create_oval(30, 80, 70, 120, fill="grey")
+green_light = canvas.create_oval(30, 140, 70, 180, fill="grey")
+
+# Создание кнопки для запуска светофора
+button = tk.Button(root, text="Перейти дорогу", command=start_traffic_light)
+button.pack()
+
+# Запуск главного цикла Tkinter
+root.mainloop()
