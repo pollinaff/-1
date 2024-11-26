@@ -1,3 +1,6 @@
+"""
+Создание игры Сапер
+"""
 from tkinter import *
 import random
 from tkinter.messagebox import showinfo, showerror
